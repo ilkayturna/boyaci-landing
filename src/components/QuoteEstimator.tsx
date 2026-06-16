@@ -343,11 +343,11 @@ export const QuoteEstimator: React.FC = () => {
             Boyama koordinatörümüz 10 dakika içerisinde sizi arayarak randevunuzu teyit edecektir.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '300px', margin: '0 auto' }}>
-            <a href={`tel:${contactPhone}`} className="btn-primary flex-center" style={{ textDecoration: 'none' }}>
+            <a href="tel:05337766843" className="btn-primary flex-center" style={{ textDecoration: 'none' }}>
               <Phone size={18} /> Müşteri Hattını Hemen Ara
             </a>
             <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-              Acil aramalar için doğrudan hat: <strong>0850 308 9452</strong>
+              Acil aramalar için doğrudan hat: <strong>0533 776 68 43</strong>
             </span>
           </div>
         </div>

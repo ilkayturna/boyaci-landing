@@ -74,7 +74,7 @@ function App() {
         <div className="container header-inner">
           <a href="#" className="logo">
             <Paintbrush style={{ color: 'var(--color-accent)' }} />
-            <span>Kusursuz</span>Boya
+            <span>Turna </span>Kusursuz Boya
           </a>
           
           <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
@@ -88,8 +88,8 @@ function App() {
             >
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <a href="tel:08503089452" className="btn-primary" style={{ textDecoration: 'none', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-              <Phone size={14} /> 0850 308 9452
+            <a href="tel:05337766843" className="btn-primary" style={{ textDecoration: 'none', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+              <Phone size={14} /> 0533 776 68 43
             </a>
           </nav>
         </div>
@@ -111,7 +111,7 @@ function App() {
               <a href="#quote-section" className="btn-primary" style={{ textDecoration: 'none', fontSize: '1.05rem', padding: '1rem 2rem' }}>
                 Akıllı Hesaplayıcı ile Fiyat Al <ChevronRight size={18} />
               </a>
-              <a href="https://wa.me/905330000000?text=Merhaba,%20boya%20teklifi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem' }}>
+              <a href="https://wa.me/905337766843?text=Merhaba,%20boya%20teklifi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem' }}>
                 <MessageSquare size={18} style={{ color: '#25D366' }} /> WhatsApp Danışma Hattı
               </a>
             </div>
@@ -287,7 +287,7 @@ function App() {
 
       {/* 8. Call to Action floating bottom right for mobile traffic */}
       <a 
-        href="https://wa.me/905330000000?text=Merhaba,%20hızlı%20boya%20teklifi%20almak%20istiyorum." 
+        href="https://wa.me/905337766843?text=Merhaba,%20hızlı%20boya%20teklifi%20almak%20istiyorum." 
         target="_blank" 
         rel="noopener noreferrer"
         style={{
@@ -320,7 +320,7 @@ function App() {
           <div className="footer-col">
             <h4 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-display)', color: 'white', marginBottom: '1rem' }}>
               <Paintbrush style={{ color: 'var(--color-accent)', marginRight: '0.5rem', display: 'inline', verticalAlign: 'middle' }} size={20} />
-              Kusursuz Boya Teknolojileri
+              Turna Kusursuz Boya Teknolojileri
             </h4>
             <p style={{ fontSize: '0.9rem', lineHeight: 1.6, opacity: 0.8 }}>
               İstanbul genelinde 1.400'den fazla konut ve ofis projesinde kusursuzluğu tescil edilmiş profesyonel boya hizmeti sunuyoruz. Google Maps entegrasyonu ve sıfır peşinat güvencesiyle daima yanınızdayız.
@@ -338,15 +338,15 @@ function App() {
           <div className="footer-col">
             <h4>İletişim</h4>
             <ul>
-              <li>Müşteri Destek: <strong>0850 308 9452</strong></li>
-              <li>E-posta: <strong>info@kusursuzboya.com</strong></li>
-              <li>Merkez: Moda Cd. No:142 Kadıköy / İstanbul</li>
+              <li>Müşteri Destek: <strong>0533 776 68 43</strong></li>
+              <li>E-posta: <strong>info@turnaboya.com</strong></li>
+              <li>Merkez: Yenimahalle, Bağcılar Asfaltı Cd. No:142 Bağcılar / İstanbul</li>
             </ul>
           </div>
         </div>
         <div className="container footer-bottom">
           <p style={{ margin: 0, fontSize: '0.85rem' }}>
-            &copy; {new Date().getFullYear()} Kusursuz Boya. Tüm hakları saklıdır. Google Haritalar yönlendirme sayfasıdır.
+            &copy; {new Date().getFullYear()} Turna Kusursuz Boya. Tüm hakları saklıdır. Google Haritalar yönlendirme sayfasıdır.
           </p>
         </div>
       </footer>
