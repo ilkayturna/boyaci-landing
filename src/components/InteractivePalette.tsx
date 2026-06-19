@@ -14,36 +14,36 @@ const colorsList: ColorOption[] = [
     id: 'sakin-kum',
     name: 'Mermer Safir & Sakin Kum',
     code: '#EADFD2',
-    psychology: 'Huzur, Ferahlık & Dengeli Zihin',
-    mood: 'Oturma odası ve salonlar için stres azaltıcı zemin yaratır.'
+    psychology: '🧠 Huzur & Kortizol Seviyesini Düşürür',
+    mood: 'Oturma odası ve salonlarda stres seviyesini düşürür, zihni dinlendirir.'
   },
   {
     id: 'sisli-orman',
     name: 'Sisli Zeytin',
     code: '#8F9779',
-    psychology: 'Doğal Odaklanma, Canlılık & Dinginlik',
-    mood: 'Yatak odası ve çalışma alanları için konsantrasyon destekleyici.'
+    psychology: '👁️ Melatonin & Odaklanma Dengesi',
+    mood: 'Yatak odası ve çalışma alanlarında konsantrasyonu artıran nörolojik uyarıcı etki.'
   },
   {
     id: 'kozmik-gri',
     name: 'Kozmik Bulut',
     code: '#D2D7DF',
-    psychology: 'Minimalizm, Kararlılık & Modern Güven',
-    mood: 'Modern banyo ve antreler için sofistike, genişletici etki.'
+    psychology: '⚡ Dopamin Dengeleyici Modernlik',
+    mood: 'Modern banyo ve antrelerde minimalizm, modern kararlılık ve dinginlik sağlar.'
   },
   {
     id: 'antik-kil',
     name: 'Sıcak Kil Terakota',
     code: '#D19C7F',
-    psychology: 'Sıcaklık, Yaratıcılık & İştah Açıcı Enerji',
-    mood: 'Mutfak ve yemek odalarında sıcak, samimi sohbet ortamı sağlar.'
+    psychology: '❤️ Serotonin & Samimiyet Tetikleyici',
+    mood: 'Mutfak ve yemek odalarında iştah, sıcak sohbet ve pozitif enerji salgılar.'
   },
   {
     id: 'kraliyet-mavi',
     name: 'Okyanus Derinliği',
     code: '#2B3E50',
-    psychology: 'Prestij, Karizma & Sonsuz Derinlik',
-    mood: 'Tek duvar (accent wall) uygulamalarında TV arkası için idealdir.'
+    psychology: '💎 Prestij & Karar Mekanizmasını Güçlendirir',
+    mood: 'TV arkası tek duvar (accent wall) uygulamalarında göz yorgunluğunu sıfırlar, lüks hissi verir.'
   }
 ];
 

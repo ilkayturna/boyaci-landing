@@ -11,26 +11,61 @@ import {
   MessageSquare, 
   Sun, 
   Moon, 
-  CheckCircle2, 
-  AlertTriangle 
+  CheckCircle2
 } from 'lucide-react';
 import { BeforeAfter } from './components/BeforeAfter';
 import { QuoteEstimator } from './components/QuoteEstimator';
 import { InteractivePalette } from './components/InteractivePalette';
+import { RiskComparison } from './components/RiskComparison';
+import { LiveNotifications } from './components/LiveNotifications';
+import { ExitIntentModal } from './components/ExitIntentModal';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  // Auto-scarcity: calculate how many slots are left today
-  const [availableSlots, setAvailableSlots] = useState<number>(3);
-  
+  // Real-time slot and availability tracking
+  const [nextAvailableDate, setNextAvailableDate] = useState<string>('');
+  const [timeLeft, setTimeLeft] = useState<number>(342); // 5 minutes 42 seconds initial
+
   useEffect(() => {
-    // Simulate active browsing slot depletion to trigger psychological urgency
-    const interval = setTimeout(() => {
-      setAvailableSlots(2);
-    }, 12000);
-    return () => clearTimeout(interval);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 342));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const scrollToEstimator = () => {
+    const element = document.getElementById('quote-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      // If we need to focus/scroll to early-location input
+      const input = document.getElementById('early-location');
+      if (input) {
+        (input as HTMLInputElement).focus();
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Dynamically calculate the next available weekday (e.g. today + 2 days, skipping Sunday)
+    const today = new Date();
+    const targetDate = new Date(today);
+    // Add 2 days, if Sunday (0) or Saturday (6), adjust so it's a weekday
+    targetDate.setDate(today.getDate() + 2);
+    if (targetDate.getDay() === 0) {
+      targetDate.setDate(targetDate.getDay() + 1); // move Sunday to Monday
+    } else if (targetDate.getDay() === 6) {
+      targetDate.setDate(targetDate.getDay() + 2); // move Saturday to Monday
+    }
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', weekday: 'long' };
+    setNextAvailableDate(targetDate.toLocaleDateString('tr-TR', options));
   }, []);
 
   const toggleDarkMode = () => {
@@ -48,8 +83,12 @@ function App() {
       a: "Asla. Çalışma başlamadan önce tüm eşyalarınız odanın ortasına toplanır, çift kat koruyucu pıt-pıt naylonla sarılır. Parkeleriniz ise özel yapışkanlı kalın mavi zemin koruyucu örtüyle kaplanır. Süpürgelikler, maskeleme bantlarıyla milimetrik olarak kapatılır. İş bittiğinde evinizden tek bir toz tanesi çıkmaz."
     },
     {
-      q: "Boya işi gerçekten 1 günde biter mi?",
-      a: "Evet. Dairenizin boyutuna göre (1+1, 2+1, 3+1) uzman ekiplerimiz kişi sayısını önceden planlar. Örneğin, 3+1 daireler için aynı anda 4 profesyonel boya ustamız çalışır. Jotun'un hızlı kuruyan ipek mat boya teknolojisi sayesinde sabah 08:30'da başlayıp akşam 18:00'de evinizi tertemiz teslim ederiz."
+      q: "Boya işi gerçekten 1 günde biter mi? Kaliteden ödün veriliyor mu?",
+      a: "Evet, 1+1, 2+1 ve 3+1 daireler için 1 günde tamamlanır. Bunu daire büyüklüğüne göre uzman ekiplerimizin sayısını artırarak sağlıyoruz (örneğin 3+1 daireye 4 profesyonel usta girer). Ancak kaliteden asla ödün vermeyiz: Eğer duvarlarınızda derin alçı tamiratı veya yoğun nem/rutubet varsa, aceleye getirilmiş uygulama yapmayız. Bu gibi durumlarda, zemin hazırlığı ve nem kurutma için ek yarım gün veya 1 gün planlarız. Zemin tam olarak hazır olmadan boyama işlemine geçmeyiz."
+    },
+    {
+      q: "4+1, dubleks, villa veya geniş ofisler de 1 günde mi biter?",
+      a: "Hayır. Villa, dubleks veya 4+1 gibi geniş ölçekli projelerde iş planını büyüklüğe göre 2 veya 3 güne yayarak planlıyoruz. Kaliteli zımpara, astar kuruma süreleri ve ince kestirme işçiliklerinin kusursuz olması için bu tip projelerde özel geniş ekiplerimizle adım adım ilerliyoruz."
     },
     {
       q: "Ödemeyi ne zaman yapıyorum?",
@@ -57,16 +96,22 @@ function App() {
     },
     {
       q: "Duvarlarda rutubet veya soyulma varsa ne yapıyorsunuz?",
-      a: "Basit boyacılar gibi üstünü boyayıp geçmiyoruz. Rutubetli veya çatlak alanları önce kazıyor, ardından özel nem engelleyici astar ve tamir harçlarıyla alt yapıyı sıfırlıyoruz. Bu sayede uyguladığımız boya 10 yıl boyunca solmadan ve soyulmadan kalıyor."
+      a: "Basit boyacılar gibi nemli bölgeyi hemen kapatıp geçmiyoruz. Sorunlu bölgeleri kazıdıktan sonra nem kurutucu endüstriyel fanlarla kurutuyor, özel nem/rutubet engelleyici astarlar ve yüksek mukavemetli tamir harçlarıyla zemini sıfırlıyoruz. Bu işlemler kuruma süresi gerektirdiğinden, gerekirse iş planına hazırlık günü ekleyerek işi 2 güne yayıyoruz."
     }
   ];
 
   return (
     <div className="app-shell">
-      {/* 1. Psychological Urgency (Scarcity Banner) */}
+      {/* Social Proof Live Notifications */}
+      <LiveNotifications />
+
+      {/* Exit Intent Loss-Aversion Interceptor */}
+      <ExitIntentModal onActionClick={scrollToEstimator} />
+
+      {/* 1. Real Availability Status Banner */}
       <div className="scarcity-banner">
-        <AlertTriangle size={16} />
-        <span>BU HAFTA İÇİN ANADOLU VE AVRUPA YAKASI'NDA SON <strong>{availableSlots} REZERVASYON</strong> KONTENJANI KALDI!</span>
+        <Clock size={16} />
+        <span>TÜM İSTANBUL'DA HİZMETİNİZDEYİZ! ₺2.500 Fiyat Sabitleme ve Hediye Çeki Kazanımı İçin Kalan Süre: <strong style={{ textShadow: '0 0 10px rgba(255,255,255,0.4)', background: 'rgba(0,0,0,0.2)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontFamily: 'monospace' }}>{formatTime(timeLeft)}</strong> (En erken <strong>{nextAvailableDate}</strong> için randevu planlanabilir)</span>
       </div>
 
       {/* 2. Header */}
@@ -79,7 +124,7 @@ function App() {
           
           <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
             <span style={{ fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Clock size={16} style={{ color: 'var(--color-accent)' }} /> 08:30 - 20:00 (Her Gün)
+              <Clock size={16} style={{ color: 'var(--color-accent)' }} /> 08:30 - 20:00 (Tüm İstanbul)
             </span>
             <button 
               className="theme-toggle" 
@@ -88,8 +133,8 @@ function App() {
             >
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <a href="tel:05337766843" className="btn-primary" style={{ textDecoration: 'none', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-              <Phone size={14} /> 0533 776 68 43
+            <a href="tel:05343435603" className="btn-primary" style={{ textDecoration: 'none', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+              <Phone size={14} /> 0 534 343 56 03
             </a>
           </nav>
         </div>
@@ -99,19 +144,31 @@ function App() {
       <section className="hero">
         <div className="container grid-2">
           <div className="hero-content fade-in">
-            <span className="tagline">GOOGLE HARİTALAR KULLANICILARINA ÖZEL</span>
+            <span className="tagline">İSTANBUL GENELİ MOBİL EKİPLER</span>
             <h1 style={{ marginBottom: '1rem' }}>
-              Milimetrik Kenar Hassasiyeti ile <span className="highlight-text">1 Günde</span> Tozsuz Boya Uygulaması
+              Sıfır Risk: Ödemeyi İş Bitiminde Yapın! <span className="highlight-text">1 Günde</span> Tozsuz Boya
             </h1>
-            <p style={{ fontSize: '1.15rem', opacity: 0.85, marginBottom: '2rem' }}>
-              Eşyalarınızı çift kat koruyucu naylonla kaplıyoruz, tek bir damla boya damlatmadan, Jotun premium boyalarıyla evinizi 1 günde baştan yaratıyoruz. <strong>%100 Memnuniyet Garantisi</strong> & Sıfır Peşinat.
+            <p style={{ fontSize: '1.15rem', opacity: 0.85, marginBottom: '1.5rem' }}>
+              İstanbul'un her ilçesindeyiz. Eşyalarınızı çift kat koruyucu naylonla kaplıyor, <strong>200.000 TL sigorta güvencesiyle</strong> tek damla boya damlatmadan, Jotun premium boyalarıyla evinizi 1 günde teslim ediyoruz. %100 Beğenme Garantisi & Sıfır Peşinat.
             </p>
+
+            {/* Scarcity Countdown Banner */}
+            <div className="countdown-banner" style={{ marginBottom: '2rem' }}>
+              <div>
+                <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--color-accent)' }}>🎁 ₺2.500 Değerinde Mimar Desteği & Kartela Paketi Hediye!</strong>
+                <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Bu kampanya adınıza tanımlandı. Fiyatınızı kilitlemek için formu tamamlayın.</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock size={16} style={{ color: 'var(--color-accent)' }} />
+                <span className="countdown-digits">{formatTime(timeLeft)}</span>
+              </div>
+            </div>
             
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <a href="#quote-section" className="btn-primary" style={{ textDecoration: 'none', fontSize: '1.05rem', padding: '1rem 2rem' }}>
+              <button onClick={scrollToEstimator} className="btn-primary" style={{ fontSize: '1.05rem', padding: '1rem 2rem', border: 'none', cursor: 'pointer' }}>
                 Akıllı Hesaplayıcı ile Fiyat Al <ChevronRight size={18} />
-              </a>
-              <a href="https://wa.me/905337766843?text=Merhaba,%20boya%20teklifi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem' }}>
+              </button>
+              <a href="https://wa.me/905343435603?text=Merhaba,%20boya%20teklifi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem' }}>
                 <MessageSquare size={18} style={{ color: '#25D366' }} /> WhatsApp Danışma Hattı
               </a>
             </div>
@@ -119,12 +176,27 @@ function App() {
             <div className="trust-badge-row">
               <div className="trust-badge">
                 <ShieldCheck size={18} />
-                <span>10 Yıl Solmama Garantisi</span>
+                <span>Boyayı Beğenmezseniz Ödemeyin</span>
               </div>
               <div className="trust-badge">
                 <Star size={18} style={{ fill: 'var(--color-accent-light)', color: 'var(--color-accent-light)' }} />
                 <span>Google Maps'te 4.9 Puan (180+ Yorum)</span>
               </div>
+            </div>
+            
+            <div className="trust-badge-row" style={{ marginTop: '1rem', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.08)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, border: '1px solid var(--color-border-light)' }} className="brand-trust-badge">
+                <span style={{ color: 'var(--color-accent)', fontWeight: 800 }}>JOTUN</span> Premium Partner
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.08)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, border: '1px solid var(--color-border-light)' }} className="brand-trust-badge">
+                <span style={{ color: '#00539C', fontWeight: 800 }}>Allianz</span> 200.000 TL Sigortalı
+              </div>
+            </div>
+            
+            {/* Live Ticker: Social Proof */}
+            <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', opacity: 0.9, background: 'var(--color-accent-soft)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px dashed var(--color-accent)' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+              <span><strong>Hizmet Kapasitesi:</strong> İstanbul genelinde eş zamanlı 14 profesyonel mobil ekiple çalışıyoruz. Tüm süreçlerimiz Allianz sigortalıdır.</span>
             </div>
           </div>
 
@@ -143,6 +215,168 @@ function App() {
         </div>
       </section>
 
+      {/* Sıfır Risk & Güven Güvencemiz */}
+      <section style={{ padding: '6rem 0', background: 'var(--color-bg-light)', borderBottom: '1px solid var(--color-border-light)' }}>
+        <div className="container">
+          <div className="section-header">
+            <span className="tagline" style={{ margin: '0 auto 1rem auto' }}>SIFIR RİSK HİZMET MODELİ</span>
+            <h2>Evinizi Boyatırken Kafanızda Tek Bir Soru İşareti Kalmasın</h2>
+            <p>Sıradan boyacıların yaşattığı tüm stresleri ortadan kaldırıyoruz. Turna Boya ile tamamen güvendesiniz.</p>
+          </div>
+          
+          <div className="reviews-grid" style={{ marginTop: '3rem' }}>
+            <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={24} />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Sıfır Peşinat & Ödeme Sonra</h3>
+              </div>
+              <p style={{ fontSize: '0.95rem', opacity: 0.85, margin: 0, lineHeight: 1.6 }}>
+                Önden kapora veya peşinat ödemezsiniz. Evinizi boyayıp teslim ettikten, siz de duvarları tek tek inceleyip elinizle dokunup onay verdikten sonra ödemeyi yaparsınız.
+              </p>
+            </div>
+
+            <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CheckCircle2 size={24} />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', margin: 0 }}>₺200.000 Eşya Hasar Teminatı</h3>
+              </div>
+              <p style={{ fontSize: '0.95rem', opacity: 0.85, margin: 0, lineHeight: 1.6 }}>
+                Çalışma sırasında parkeleriniz, mobilyalarınız ve değerli eşyalarınız çift kat koruyucu örtüyle kaplanır. Oluşabilecek en ufak hasar teminatımız altındadır.
+              </p>
+            </div>
+
+            <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(180, 83, 9, 0.1)', color: '#B45309', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Star size={24} />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', margin: 0 }}>%100 Beğenme Garantisi</h3>
+              </div>
+              <p style={{ fontSize: '0.95rem', opacity: 0.85, margin: 0, lineHeight: 1.6 }}>
+                İşçilikten veya renkten memnun kalmazsanız, ekibimiz siz "Kusursuz olmuş" diyene kadar düzeltmeleri ücretsiz yapar. Sadece memnuniyeti satın alırsınız.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Risk Comparison Section */}
+      <RiskComparison />
+
+      {/* Kusursuz İşçilik Portfolyomuz */}
+      <section style={{ padding: '6rem 0', background: 'var(--color-bg-light)', borderBottom: '1px solid var(--color-border-light)' }}>
+        <div className="container">
+          <div className="section-header">
+            <span className="tagline" style={{ margin: '0 auto 1rem auto' }}>GERÇEK PROJELER</span>
+            <h2>Tamamlanan Kusursuz İşçilik Detayları</h2>
+            <p>Milimetrik kestirmeler ve pürüzsüz yüzeyler. Yakın zamanda tamamladığımız projelerden gerçek yakın çekimler.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginTop: '3rem' }}>
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80" alt="Kadıköy Salon Projesi" style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+              <div style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent)' }}>KADIKÖY PROJESİ</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Jotun Mermer Safiri</span>
+                </div>
+                <h4 style={{ fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>Salon & Accent Wall Uygulaması</h4>
+                <p style={{ fontSize: '0.85rem', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+                  Eşyalar tamamen korundu, 3.20 metrelik yüksek tavanlarda milimetrik lazer çizgisiyle kusursuz kesim yapıldı.
+                </p>
+              </div>
+            </div>
+
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&auto=format&fit=crop&q=80" alt="Bakırköy Daire Projesi" style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+              <div style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent)' }}>BAKIRKÖY PROJESİ</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Jotun Sakin Kum</span>
+                </div>
+                <h4 style={{ fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>Modern 2+1 Daire Yenileme</h4>
+                <p style={{ fontSize: '0.85rem', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+                  Eski yıpranmış duvarlar alçı tamiri ve zımpara ile sıfırlandı. Vakumlu tozsuz makinelerle ev sahipleri evdeyken boyandı.
+                </p>
+              </div>
+            </div>
+
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <img src="https://images.unsplash.com/photo-1617806118233-18e1db207f62?w=600&auto=format&fit=crop&q=80" alt="Beşiktaş Ofis Projesi" style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+              <div style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent)' }}>BEŞİKTAŞ PROJESİ</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Jotun Sisli Zeytin</span>
+                </div>
+                <h4 style={{ fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>Home-Office Tasarım Çalışması</h4>
+                <p style={{ fontSize: '0.85rem', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+                  Çalışma alanlarında odaklanmayı artıran mat renk geçişleri sağlandı. Süpürgelik dipleri maskeleme bandıyla milimetrik boyandı.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Ustalarımızın Güvenlik Standartları */}
+      <section style={{ padding: '6rem 0', background: 'rgba(0,0,0,0.01)', borderBottom: '1px solid var(--color-border-light)' }} className="team-safety-section">
+        <div className="container">
+          <div className="grid-2" style={{ alignItems: 'center' }}>
+            <div>
+              <span className="tagline">GÜVENİLİR EKİP STANDARDI</span>
+              <h2 style={{ marginTop: '1rem' }}>Evinizi Kime Emanet Ettiğinizi Biliyorsunuz</h2>
+              <p style={{ opacity: 0.85, marginBottom: '2rem' }}>
+                Ev boyatırken sadece işin kalitesi değil, evinizin güvenliği de önemlidir. Turna Boya olarak, kadromuzdaki ustaların seçiminde en yüksek standartları uygularız.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-accent-soft)', color: 'var(--color-accent)' }} className="flex-center">
+                    ✓
+                  </div>
+                  <div>
+                    <h5 style={{ margin: '0 0 0.2rem 0', fontSize: '1rem' }}>Adli Sicil Kaydı Temiz Ustalar</h5>
+                    <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>Ekibimizdeki tüm ustaların adli sicil ve sabıka kayıtları işe alımda ve periyodik olarak kontrol edilir.</p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-accent-soft)', color: 'var(--color-accent)' }} className="flex-center">
+                    ✓
+                  </div>
+                  <div>
+                    <h5 style={{ margin: '0 0 0.2rem 0', fontSize: '1rem' }}>SGK'lı ve Kadrolu Personel</h5>
+                    <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>Taşeron veya günlükçü işçi çalıştırmayız. Tamamı Turna bünyesinde sigortalı, profesyonel kadromuzdur.</p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-accent-soft)', color: 'var(--color-accent)' }} className="flex-center">
+                    ✓
+                  </div>
+                  <div>
+                    <h5 style={{ margin: '0 0 0.2rem 0', fontSize: '1rem' }}>Jotun Akademi Eğitimli</h5>
+                    <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>Ustalarımızın tamamı Jotun Academy teknik boya uygulama, renk teorisi ve müşteri ilişkileri eğitimlerini başarıyla tamamlamıştır.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ position: 'relative' }}>
+              <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&auto=format&fit=crop&q=80" alt="Boya Ustalarımız" style={{ width: '100%', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-elevated)' }} />
+              <div style={{ position: 'absolute', bottom: '20px', left: '20px', right: '20px', background: 'rgba(15,23,42,0.9)', color: 'white', padding: '1rem', borderRadius: '8px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Eviniz Emin Ellerde</div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.2rem' }}>14 sertifikalı usta, Allianz sigorta teminatı ve sıfır peşinat modeliyle kusursuz hizmet.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 4. Social Proof & Local Focus Section (Google Maps Optimization) */}
       <section className="reviews-section">
         <div className="container">
@@ -150,7 +384,7 @@ function App() {
             <div className="maps-badge" style={{ marginBottom: '1rem' }}>
               <MapPin size={12} /> Yakın Zamanda Tamamlanan Projelerimiz
             </div>
-            <h2>Çevrenizdeki Evler Nasıl Boyandı?</h2>
+            <h2>İstanbul'un Dört Bir Yanında Memnun Müşteriler</h2>
             <p>Son 14 gün içerisinde mahallenizde tamamladığımız gerçek işlerin sahipleri konuşuyor.</p>
           </div>
 
@@ -176,7 +410,7 @@ function App() {
                 <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60" alt="Müşteri 2" className="reviewer-avatar" />
                 <div className="reviewer-info">
                   <h4>Kaan Şenyurt</h4>
-                  <p>Ataşehir, Barbaros — 2+1 Daire</p>
+                  <p>Bakırköy, Kartaltepe — 2+1 Daire</p>
                 </div>
               </div>
               <div className="stars">
@@ -287,7 +521,7 @@ function App() {
 
       {/* 8. Call to Action floating bottom right for mobile traffic */}
       <a 
-        href="https://wa.me/905337766843?text=Merhaba,%20hızlı%20boya%20teklifi%20almak%20istiyorum." 
+        href="https://wa.me/905343435603?text=Merhaba,%20hızlı%20boya%20teklifi%20almak%20istiyorum." 
         target="_blank" 
         rel="noopener noreferrer"
         style={{
@@ -329,18 +563,17 @@ function App() {
           <div className="footer-col">
             <h4>Hizmet Bölgeleri</h4>
             <ul>
-              <li><a href="#quote-section">Kadıköy & Ataşehir</a></li>
-              <li><a href="#quote-section">Beşiktaş & Levent</a></li>
-              <li><a href="#quote-section">Üsküdar & Beykoz</a></li>
-              <li><a href="#quote-section">Şişli & Sarıyer</a></li>
+              <li><a href="#quote-section">Bakırköy, Yeşilköy & Florya</a></li>
+              <li><a href="#quote-section">Kadıköy, Ataşehir & Üsküdar</a></li>
+              <li><a href="#quote-section">Beşiktaş, Levent & Şişli</a></li>
+              <li><a href="#quote-section">Tüm İstanbul (Avrupa & Anadolu Yakası)</a></li>
             </ul>
           </div>
           <div className="footer-col">
             <h4>İletişim</h4>
             <ul>
-              <li>Müşteri Destek: <strong>0533 776 68 43</strong></li>
-              <li>E-posta: <strong>info@turnaboya.com</strong></li>
-              <li>Merkez: Yenimahalle, Bağcılar Asfaltı Cd. No:142 Bağcılar / İstanbul</li>
+              <li>Müşteri Destek: <strong>0 534 343 56 03</strong></li>
+              <li>Merkez: Kartaltepe Mh. İncirli Cd. No:48 Bakırköy / İstanbul</li>
             </ul>
           </div>
         </div>

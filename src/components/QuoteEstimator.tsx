@@ -1,6 +1,42 @@
-import React, { useState } from 'react';
-import { Home, ClipboardList, CheckCircle, ArrowRight, ArrowLeft, Phone, User, MapPin, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Home, ClipboardList, CheckCircle, ArrowRight, ArrowLeft, Phone, User, MapPin, Sparkles, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
+
+interface PainterInfo {
+  name: string;
+  rating: string;
+  reviews: number;
+  experience: number;
+  photo: string;
+  specialty: string;
+}
+
+const localPainters: Record<string, PainterInfo> = {
+  default: {
+    name: "Kemal Usta & Ekipleri",
+    rating: "4.9",
+    reviews: 240,
+    experience: 18,
+    photo: "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=120&auto=format&fit=crop&q=80",
+    specialty: "Jotun Premium Uygulama Lideri"
+  },
+  anadolu: {
+    name: "Mustafa Usta & Mobil Kadrosu",
+    rating: "4.9",
+    reviews: 185,
+    experience: 14,
+    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
+    specialty: "Milimetrik Kestirme Uzmanı"
+  },
+  avrupa: {
+    name: "Orhan Usta & Turna Altın Ekibi",
+    rating: "5.0",
+    reviews: 312,
+    experience: 20,
+    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80",
+    specialty: "Vakumlu Tozsuz Zımpara & Hızlı Teslim Lideri"
+  }
+};
 
 export const QuoteEstimator: React.FC = () => {
   const [step, setStep] = useState<number>(1);
@@ -10,24 +46,51 @@ export const QuoteEstimator: React.FC = () => {
   const [contactName, setContactName] = useState<string>('');
   const [contactPhone, setContactPhone] = useState<string>('');
   const [contactLocation, setContactLocation] = useState<string>('');
+  const [allocatedPainter, setAllocatedPainter] = useState<PainterInfo>(localPainters.default);
   const [estimatedPrice, setEstimatedPrice] = useState<{ min: number; max: number } | null>(null);
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
+
+  // Auto-transition loader step
+  useEffect(() => {
+    if (step === 4) {
+      // Determine painter based on location keyword
+      const loc = contactLocation.toLowerCase();
+      if (loc.includes('kadikoy') || loc.includes('uskudar') || loc.includes('atasehir') || loc.includes('kartal') || loc.includes('anadolu')) {
+        setAllocatedPainter(localPainters.anadolu);
+      } else if (loc.includes('besiktas') || loc.includes('sisli') || loc.includes('levent') || loc.includes('bakirkoy') || loc.includes('avrupa')) {
+        setAllocatedPainter(localPainters.avrupa);
+      } else {
+        setAllocatedPainter(localPainters.default);
+      }
+
+      const timer = setTimeout(() => {
+        calculatePrice();
+        setStep(5);
+      }, 2500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [step, contactLocation]);
 
   const handleNext = () => {
     if (step === 3) {
-      calculatePrice();
+      setStep(4); // Go to allocation loader
+    } else {
+      setStep(prev => Math.min(prev + 1, totalSteps + 1)); // step + 1 represents thank you page
     }
-    setStep(prev => Math.min(prev + 1, totalSteps));
   };
 
   const handleBack = () => {
-    setStep(prev => Math.max(prev - 1, 1));
+    if (step === 5) {
+      setStep(3); // skip loader when going back
+    } else {
+      setStep(prev => Math.max(prev - 1, 1));
+    }
   };
 
   const calculatePrice = () => {
-    // Basic premium pricing algorithm
     let basePriceMin = 12000;
     let basePriceMax = 18000;
 
@@ -36,12 +99,10 @@ export const QuoteEstimator: React.FC = () => {
     else if (houseSize === '3+1') { basePriceMin = 19000; basePriceMax = 27000; }
     else if (houseSize === '4+1+') { basePriceMin = 26000; basePriceMax = 38000; }
 
-    // Multipliers for wall condition
     let conditionMultiplier = 1.0;
     if (wallCondition === 'orta') conditionMultiplier = 1.15;
     if (wallCondition === 'kotu') conditionMultiplier = 1.35;
 
-    // Multipliers for paint quality
     let qualityMultiplier = 1.0;
     if (paintQuality === 'premium') qualityMultiplier = 1.25;
     if (paintQuality === 'elite') qualityMultiplier = 1.6;
@@ -59,26 +120,31 @@ export const QuoteEstimator: React.FC = () => {
       return;
     }
     
-    // Trigger success confetti
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 }
     });
 
-    setStep(5); // Thank you page
+    setStep(6); // Thank you page
   };
 
   return (
-    <div className="glass-card fade-in">
+    <div className="glass-card fade-in" style={{ scrollMarginTop: '100px' }}>
       <h3 style={{ fontFamily: 'var(--font-display)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <Sparkles size={22} style={{ color: 'var(--color-accent)' }} /> 
         Kişiselleştirilmiş Akıllı Teklif Hesaplayıcı
       </h3>
 
-      {step <= 4 && (
-        <div className="progress-bar-container">
-          <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
+      {step <= 5 && (
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', opacity: 0.8 }}>
+            <span>İlerleme Durumu</span>
+            <span>Adım {step} / 5</span>
+          </div>
+          <div className="progress-bar-container" style={{ marginBottom: 0 }}>
+            <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
+          </div>
         </div>
       )}
 
@@ -87,6 +153,26 @@ export const QuoteEstimator: React.FC = () => {
         <div className="estimator-step active">
           <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Dairenizin büyüklüğü nedir?</h4>
           <p style={{ opacity: 0.7, fontSize: '0.9rem', marginBottom: '1.5rem' }}>Malzeme miktarı ve işçilik süresini belirlemek için en önemli adımdır.</p>
+          
+          {/* Location field moved up to customize allocated painter early */}
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label htmlFor="early-location" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <MapPin size={16} /> Bulunduğunuz İlçe / Mahalle (İstanbul)
+            </label>
+            <input 
+              type="text" 
+              id="early-location" 
+              className="form-control"
+              placeholder="Örn. Kadıköy, Bakırköy, Beşiktaş"
+              value={contactLocation}
+              onChange={(e) => setContactLocation(e.target.value)}
+              style={{ borderStyle: 'dashed' }}
+            />
+            <span style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '0.2rem', display: 'block' }}>
+              *Bulunduğunuz konuma en yakın ve Google Haritalar puanı en yüksek usta ekibini eşleştirmek için gereklidir.
+            </span>
+          </div>
+
           <div className="option-grid">
             {['1+1', '2+1', '3+1', '4+1+'].map((size) => (
               <div 
@@ -154,7 +240,7 @@ export const QuoteEstimator: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 3: Paint Quality & Decoy Effect */}
+      {/* STEP 3: Paint Quality */}
       {step === 3 && (
         <div className="estimator-step active">
           <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Hangi boya kalitesini tercih edersiniz?</h4>
@@ -242,28 +328,97 @@ export const QuoteEstimator: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 4: Lead Form (Reciprocity & Commitment) */}
+      {/* STEP 4: Simulated Painter Allocation Loader (Social Proof / Commitment) */}
       {step === 4 && (
+        <div className="estimator-step active allocation-loader">
+          <div className="spinner"></div>
+          <div>
+            <h4 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Müsait Turna Ekipleri Taranıyor...</h4>
+            <p style={{ fontSize: '0.9rem', opacity: 0.8, maxWidth: '480px', margin: '0 auto' }}>
+              Bulunduğunuz bölgeye en yakın, Google Haritalar puanı en yüksek kadrolu ustalarımızın uygunluk durumları sorgulanıyor.
+            </p>
+          </div>
+          <div style={{ width: '100%', maxWidth: '350px', background: 'rgba(0,0,0,0.02)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.8rem', opacity: 0.7 }}>
+            ✓ Bölge analizi yapılıyor... <br />
+            ✓ Jotun sertifikası doğrulanıyor... <br />
+            ✓ Yoğunluk takvimi eşleştiriliyor...
+          </div>
+        </div>
+      )}
+
+      {/* STEP 5: Lead Form with Calculated Price & Painter Info (Liking & Commitment) */}
+      {step === 5 && (
         <div className="estimator-step active">
           <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Sparkles size={20} style={{ color: 'var(--color-accent)' }} /> 
-            Teklifiniz Hazırlandı!
+            Teklifiniz ve Ustanız Hazır!
           </h4>
-          <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Seçtiğiniz kriterlere göre tahmini bütçeniz: 
-            <strong style={{ display: 'block', fontSize: '1.6rem', color: 'var(--color-accent)', margin: '0.5rem 0' }}>
+          
+          <div style={{ 
+            background: 'var(--color-accent-soft)', 
+            padding: '1.5rem', 
+            borderRadius: '12px', 
+            border: '1px solid var(--color-accent)',
+            marginBottom: '1.5rem' 
+          }}>
+            <span style={{ fontSize: '0.8rem', opacity: 0.8, textTransform: 'uppercase', fontWeight: 800 }}>Hesaplanan Net Fiyat Aralığı</span>
+            <strong style={{ display: 'block', fontSize: '2rem', color: 'var(--color-accent)', margin: '0.2rem 0' }}>
               ₺{estimatedPrice?.min.toLocaleString('tr-TR')} - ₺{estimatedPrice?.max.toLocaleString('tr-TR')}
             </strong>
-            <span style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block' }}>
-              *Kdv ve tüm malzemeler dahildir. Eşyaların taşınması ve örtülmesi fiyata dahildir.
+            <span style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', lineHeight: '1.4' }}>
+              *<strong>Her şey dahil net fiyat garantisi:</strong> Malzeme, çift kat ambalajlama, vakumlu zımpara, Jotun premium boyaları ve detay temizlik fiyata dahildir. Sürpriz ek ücret çıkmaz.
             </span>
-          </p>
+          </div>
 
-          <form onSubmit={handleSubmit} style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: '1.5rem' }}>
-            <div style={{ background: 'var(--color-accent-soft)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.85rem', color: 'var(--color-accent)' }}>
-              <strong>🎁 Reciprocity Hediyesi:</strong> Telefon numaranızı girerek teklifinizi kaydettiğinizde, eviniz için <strong>₺2.500 değerindeki Ücretsiz 3D Renk Simülasyonu</strong> ve <strong>Orijinal Kartela Seti</strong> adresinize hediye edilecektir.
+          {/* Matched Painter Block */}
+          <div style={{ 
+            border: '2px solid var(--color-success)', 
+            borderRadius: '12px', 
+            padding: '1.2rem', 
+            marginBottom: '1.5rem',
+            background: 'rgba(16, 185, 129, 0.01)',
+            position: 'relative'
+          }}>
+            <span style={{ 
+              position: 'absolute', 
+              top: '-10px', 
+              left: '15px', 
+              background: 'var(--color-success)', 
+              color: 'white', 
+              fontSize: '0.7rem', 
+              fontWeight: 800, 
+              padding: '2px 8px', 
+              borderRadius: '8px'
+            }}>
+              BÖLGENİZE ATANAN EN YÜKSEK PUANLI USTA
+            </span>
+
+            <div className="painter-card" style={{ border: 'none', background: 'none', padding: 0, marginTop: 0 }}>
+              <img src={allocatedPainter.photo} alt={allocatedPainter.name} className="painter-avatar" />
+              <div>
+                <h5 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem', fontWeight: 800 }}>{allocatedPainter.name}</h5>
+                <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                  {allocatedPainter.specialty}
+                </span>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.1rem', color: 'var(--color-accent-light)' }}>
+                    <Star size={14} style={{ fill: 'var(--color-accent-light)' }} />
+                    <span style={{ fontWeight: 800 }}>{allocatedPainter.rating}</span>
+                  </div>
+                  <span style={{ opacity: 0.7 }}>({allocatedPainter.reviews}+ Ev Teslimi)</span>
+                  <span style={{ opacity: 0.7 }}>•</span>
+                  <span style={{ opacity: 0.7 }}>{allocatedPainter.experience} Yıl Deneyim</span>
+                </div>
+              </div>
             </div>
+            
+            <p style={{ margin: '0.8rem 0 0 0', fontSize: '0.8rem', opacity: 0.8, borderTop: '1px dashed rgba(16, 185, 129, 0.2)', paddingTop: '0.8rem' }}>
+              ⚠️ <strong>Yoğun Kontenjan Uyarısı:</strong> Bulunduğunuz ilçede {allocatedPainter.name} ekibinin bu hafta için sadece <strong>1 adet</strong> boş randevu kontenjanı kalmıştır. Bu ekibi ve ₺2.500 değerindeki kampanya haklarınızı kaybetmemek için lütfen formu eksiksiz doldurun.
+            </p>
+          </div>
 
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <User size={16} /> Adınız Soyadınız
@@ -296,15 +451,16 @@ export const QuoteEstimator: React.FC = () => {
 
             <div className="form-group">
               <label htmlFor="location" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <MapPin size={16} /> İlçe / Bölge
+                <MapPin size={16} /> İlçe / Mahalle
               </label>
               <input 
                 type="text" 
                 id="location" 
                 className="form-control"
-                placeholder="Örn. Kadıköy, Ataşehir"
+                placeholder="Örn. Kadıköy, Bakırköy"
                 value={contactLocation}
                 onChange={(e) => setContactLocation(e.target.value)}
+                required
               />
             </div>
 
@@ -312,16 +468,16 @@ export const QuoteEstimator: React.FC = () => {
               <button type="button" className="btn-secondary" onClick={handleBack}>
                 <ArrowLeft size={18} /> Geri
               </button>
-              <button type="submit" className="btn-primary">
-                Garantili Teklifi Kaydet & Yer Ayırt <ArrowRight size={18} />
+              <button type="submit" className="btn-primary" style={{ backgroundColor: 'var(--color-success)', borderColor: 'var(--color-success)', color: 'white' }}>
+                {allocatedPainter.name.split(' ')[0]}'i ve Fiyatı Rezerve Et <ArrowRight size={18} />
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* STEP 5: Success / Thank You (Liking & Trust) */}
-      {step === 5 && (
+      {/* STEP 6: Success / Thank You (Liking & Trust) */}
+      {step === 6 && (
         <div className="estimator-step active" style={{ textAlign: 'center', padding: '2rem 0' }}>
           <div style={{ 
             width: '64px', 
@@ -337,17 +493,18 @@ export const QuoteEstimator: React.FC = () => {
           }}>
             ✓
           </div>
-          <h4 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>Tebrikler, Teklifiniz ve Hediyeleriniz Güvence Altında!</h4>
+          <h4 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>Tebrikler, Kemal Usta ve Hediyeleriniz Rezerve Edildi!</h4>
           <p style={{ opacity: 0.9, fontSize: '0.95rem', maxWidth: '500px', margin: '0 auto 2rem auto' }}>
-            Sayın <strong style={{ color: 'var(--color-accent)' }}>{contactName}</strong>, <strong>₺2.500 değerindeki Ücretsiz 3D Renk Simülasyonu</strong> ve <strong>Fiziksel Kartela Setiniz</strong> profilinize tanımlandı. 
-            Boyama koordinatörümüz 10 dakika içerisinde sizi arayarak randevunuzu teyit edecektir.
+            Sayın <strong style={{ color: 'var(--color-accent)' }}>{contactName}</strong>, seçtiğiniz tarihte <strong>{allocatedPainter.name}</strong> ekibi adınıza geçici olarak bloke edilmiştir. 
+            Ayrıca <strong>₺2.500 değerindeki Ücretsiz 3D Mimar Raporu</strong> ve <strong>Fiziksel Kartela Setiniz</strong> adresinize gönderilmek üzere onaylanmıştır. 
+            Boyama koordinatörümüz 10 dakika içerisinde sizi arayarak teyit işlemini tamamlayacaktır.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '300px', margin: '0 auto' }}>
-            <a href="tel:05337766843" className="btn-primary flex-center" style={{ textDecoration: 'none' }}>
-              <Phone size={18} /> Müşteri Hattını Hemen Ara
+            <a href="tel:05343435603" className="btn-primary flex-center" style={{ textDecoration: 'none' }}>
+              <Phone size={18} /> Koordinatörü Hemen Ara
             </a>
             <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-              Acil aramalar için doğrudan hat: <strong>0533 776 68 43</strong>
+              Doğrudan ve Hızlı Onay Hattı: <strong>0 534 343 56 03</strong>
             </span>
           </div>
         </div>
@@ -355,3 +512,4 @@ export const QuoteEstimator: React.FC = () => {
     </div>
   );
 };
+
