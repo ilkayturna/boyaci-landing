@@ -36,9 +36,9 @@ export const RiskComparison: React.FC = () => {
             <div className="risk-item error">
               <XCircle size={18} style={{ color: '#EF4444', minWidth: '18px', marginTop: '3px' }} />
               <div>
-                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>Güvenlik ve Sabıka Kaydı Belirsizliği</h4>
+                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>Kimle Çalıştığınızı Bilmemek</h4>
                 <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>
-                  Evinize giren gündelik işçilerin kim olduğunu, sabıka kaydı durumunu bilemezsiniz. Ailenizin ve eşyalarınızın güvenliği tamamen şansa kalır.
+                  Tek seferlik günlükçü işçilerle çalışırken referans veya geçmiş iş kontrolü yapmak zor olabilir.
                 </p>
               </div>
             </div>
@@ -86,9 +86,9 @@ export const RiskComparison: React.FC = () => {
             <div className="risk-item success">
               <CheckCircle2 size={18} style={{ color: '#10B981', minWidth: '18px', marginTop: '3px' }} />
               <div>
-                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>Adli Sicili Temiz, Kadrolu ve Sigortalı Ekipler</h4>
+                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>Sabit Ekip, Google'da Görünür Geçmiş</h4>
                 <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>
-                  Evinize sadece Turna bünyesinde kadrolu, sabıka kayıtları incelenmiş ve Jotun Academy teknik/etik eğitimlerinden geçmiş profesyonel ustalarımız girer.
+                  Kim olduğumuzu Google İşletme Profilimizden görebilir, geçmiş müşterilerimizin yorumlarını okuyabilirsiniz.
                 </p>
               </div>
             </div>
@@ -96,9 +96,9 @@ export const RiskComparison: React.FC = () => {
             <div className="risk-item success">
               <CheckCircle2 size={18} style={{ color: '#10B981', minWidth: '18px', marginTop: '3px' }} />
               <div>
-                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>₺200.000 Allianz Eşya Sigortası & Muhafaza</h4>
+                <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1.05rem' }}>Eşyalarınız Çift Kat Korumaya Alınır</h4>
                 <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.75 }}>
-                  Eşyalarınız pıt-pıt poşetlerle çift kat ambalajlanır, parkeler mavi koruyucu örtüyle kaplanır. Olası tüm hasarlar Allianz sigorta teminatı altındadır.
+                  Eşyalarınız pıt-pıt poşetlerle çift kat ambalajlanır, parkeler koruyucu örtüyle kaplanır.
                 </p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export const RiskComparison: React.FC = () => {
             Kendinize ve Evinize Saygı Gösterin
           </h4>
           <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.85 }}>
-            Sadece birkaç bin TL daha ucuz diye sabıka kaydı belirsiz kişileri evinize sokup, haftalarca toz yutup, mobilyalarınızın çizilmesini riske atmayın. 
+            Birkaç bin TL tasarruf için haftalarca toz yutmayı veya mobilyalarınızın zarar görmesini göze almayın.
             Turna Boya ile <strong>sıfır risk</strong> alın, ödemeyi iş bittiğinde ve siz onay verdiğinizde yapın!
           </p>
         </div>

@@ -1,42 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ClipboardList, CheckCircle, ArrowRight, ArrowLeft, Phone, User, MapPin, Sparkles, Star } from 'lucide-react';
+import { Home, ClipboardList, CheckCircle, ArrowRight, ArrowLeft, Phone, User, MapPin, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
-
-interface PainterInfo {
-  name: string;
-  rating: string;
-  reviews: number;
-  experience: number;
-  photo: string;
-  specialty: string;
-}
-
-const localPainters: Record<string, PainterInfo> = {
-  default: {
-    name: "Kemal Usta & Ekipleri",
-    rating: "4.9",
-    reviews: 240,
-    experience: 18,
-    photo: "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=120&auto=format&fit=crop&q=80",
-    specialty: "Jotun Premium Uygulama Lideri"
-  },
-  anadolu: {
-    name: "Mustafa Usta & Mobil Kadrosu",
-    rating: "4.9",
-    reviews: 185,
-    experience: 14,
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
-    specialty: "Milimetrik Kestirme Uzmanı"
-  },
-  avrupa: {
-    name: "Orhan Usta & Turna Altın Ekibi",
-    rating: "5.0",
-    reviews: 312,
-    experience: 20,
-    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80",
-    specialty: "Vakumlu Tozsuz Zımpara & Hızlı Teslim Lideri"
-  }
-};
 
 export const QuoteEstimator: React.FC = () => {
   const [step, setStep] = useState<number>(1);
@@ -46,7 +10,6 @@ export const QuoteEstimator: React.FC = () => {
   const [contactName, setContactName] = useState<string>('');
   const [contactPhone, setContactPhone] = useState<string>('');
   const [contactLocation, setContactLocation] = useState<string>('');
-  const [allocatedPainter, setAllocatedPainter] = useState<PainterInfo>(localPainters.default);
   const [estimatedPrice, setEstimatedPrice] = useState<{ min: number; max: number } | null>(null);
 
   const totalSteps = 5;
@@ -55,24 +18,14 @@ export const QuoteEstimator: React.FC = () => {
   // Auto-transition loader step
   useEffect(() => {
     if (step === 4) {
-      // Determine painter based on location keyword
-      const loc = contactLocation.toLowerCase();
-      if (loc.includes('kadikoy') || loc.includes('uskudar') || loc.includes('atasehir') || loc.includes('kartal') || loc.includes('anadolu')) {
-        setAllocatedPainter(localPainters.anadolu);
-      } else if (loc.includes('besiktas') || loc.includes('sisli') || loc.includes('levent') || loc.includes('bakirkoy') || loc.includes('avrupa')) {
-        setAllocatedPainter(localPainters.avrupa);
-      } else {
-        setAllocatedPainter(localPainters.default);
-      }
-
       const timer = setTimeout(() => {
         calculatePrice();
         setStep(5);
-      }, 2500);
+      }, 1800);
 
       return () => clearTimeout(timer);
     }
-  }, [step, contactLocation]);
+  }, [step]);
 
   const handleNext = () => {
     if (step === 3) {
@@ -169,7 +122,7 @@ export const QuoteEstimator: React.FC = () => {
               style={{ borderStyle: 'dashed' }}
             />
             <span style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '0.2rem', display: 'block' }}>
-              *Bulunduğunuz konuma en yakın ve Google Haritalar puanı en yüksek usta ekibini eşleştirmek için gereklidir.
+              *Bulunduğunuz bölgeye en yakın ekibi planlamak için gereklidir.
             </span>
           </div>
 
@@ -328,20 +281,15 @@ export const QuoteEstimator: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 4: Simulated Painter Allocation Loader (Social Proof / Commitment) */}
+      {/* STEP 4: Calculating price */}
       {step === 4 && (
         <div className="estimator-step active allocation-loader">
           <div className="spinner"></div>
           <div>
-            <h4 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Müsait Turna Ekipleri Taranıyor...</h4>
+            <h4 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Fiyatınız Hesaplanıyor...</h4>
             <p style={{ fontSize: '0.9rem', opacity: 0.8, maxWidth: '480px', margin: '0 auto' }}>
-              Bulunduğunuz bölgeye en yakın, Google Haritalar puanı en yüksek kadrolu ustalarımızın uygunluk durumları sorgulanıyor.
+              Verdiğiniz bilgilere göre net fiyat aralığınız hazırlanıyor.
             </p>
-          </div>
-          <div style={{ width: '100%', maxWidth: '350px', background: 'rgba(0,0,0,0.02)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.8rem', opacity: 0.7 }}>
-            ✓ Bölge analizi yapılıyor... <br />
-            ✓ Jotun sertifikası doğrulanıyor... <br />
-            ✓ Yoğunluk takvimi eşleştiriliyor...
           </div>
         </div>
       )}
@@ -350,73 +298,29 @@ export const QuoteEstimator: React.FC = () => {
       {step === 5 && (
         <div className="estimator-step active">
           <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Sparkles size={20} style={{ color: 'var(--color-accent)' }} /> 
-            Teklifiniz ve Ustanız Hazır!
+            <Sparkles size={20} style={{ color: 'var(--color-accent)' }} />
+            Teklifiniz Hazır!
           </h4>
-          
-          <div style={{ 
-            background: 'var(--color-accent-soft)', 
-            padding: '1.5rem', 
-            borderRadius: '12px', 
+
+          <div style={{
+            background: 'var(--color-accent-soft)',
+            padding: '1.5rem',
+            borderRadius: '12px',
             border: '1px solid var(--color-accent)',
-            marginBottom: '1.5rem' 
+            marginBottom: '1.5rem'
           }}>
             <span style={{ fontSize: '0.8rem', opacity: 0.8, textTransform: 'uppercase', fontWeight: 800 }}>Hesaplanan Net Fiyat Aralığı</span>
             <strong style={{ display: 'block', fontSize: '2rem', color: 'var(--color-accent)', margin: '0.2rem 0' }}>
               ₺{estimatedPrice?.min.toLocaleString('tr-TR')} - ₺{estimatedPrice?.max.toLocaleString('tr-TR')}
             </strong>
             <span style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', lineHeight: '1.4' }}>
-              *<strong>Her şey dahil net fiyat garantisi:</strong> Malzeme, çift kat ambalajlama, vakumlu zımpara, Jotun premium boyaları ve detay temizlik fiyata dahildir. Sürpriz ek ücret çıkmaz.
+              *<strong>Her şey dahil net fiyat garantisi:</strong> Malzeme, çift kat ambalajlama, vakumlu zımpara, Jotun boyaları ve detay temizlik fiyata dahildir. Sürpriz ek ücret çıkmaz.
             </span>
           </div>
 
-          {/* Matched Painter Block */}
-          <div style={{ 
-            border: '2px solid var(--color-success)', 
-            borderRadius: '12px', 
-            padding: '1.2rem', 
-            marginBottom: '1.5rem',
-            background: 'rgba(16, 185, 129, 0.01)',
-            position: 'relative'
-          }}>
-            <span style={{ 
-              position: 'absolute', 
-              top: '-10px', 
-              left: '15px', 
-              background: 'var(--color-success)', 
-              color: 'white', 
-              fontSize: '0.7rem', 
-              fontWeight: 800, 
-              padding: '2px 8px', 
-              borderRadius: '8px'
-            }}>
-              BÖLGENİZE ATANAN EN YÜKSEK PUANLI USTA
-            </span>
-
-            <div className="painter-card" style={{ border: 'none', background: 'none', padding: 0, marginTop: 0 }}>
-              <img src={allocatedPainter.photo} alt={allocatedPainter.name} className="painter-avatar" />
-              <div>
-                <h5 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem', fontWeight: 800 }}>{allocatedPainter.name}</h5>
-                <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                  {allocatedPainter.specialty}
-                </span>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.1rem', color: 'var(--color-accent-light)' }}>
-                    <Star size={14} style={{ fill: 'var(--color-accent-light)' }} />
-                    <span style={{ fontWeight: 800 }}>{allocatedPainter.rating}</span>
-                  </div>
-                  <span style={{ opacity: 0.7 }}>({allocatedPainter.reviews}+ Ev Teslimi)</span>
-                  <span style={{ opacity: 0.7 }}>•</span>
-                  <span style={{ opacity: 0.7 }}>{allocatedPainter.experience} Yıl Deneyim</span>
-                </div>
-              </div>
-            </div>
-            
-            <p style={{ margin: '0.8rem 0 0 0', fontSize: '0.8rem', opacity: 0.8, borderTop: '1px dashed rgba(16, 185, 129, 0.2)', paddingTop: '0.8rem' }}>
-              ⚠️ <strong>Yoğun Kontenjan Uyarısı:</strong> Bulunduğunuz ilçede {allocatedPainter.name} ekibinin bu hafta için sadece <strong>1 adet</strong> boş randevu kontenjanı kalmıştır. Bu ekibi ve ₺2.500 değerindeki kampanya haklarınızı kaybetmemek için lütfen formu eksiksiz doldurun.
-            </p>
-          </div>
+          <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '1.5rem' }}>
+            Formu doldurduğunuzda ekibimizden biri sizi kısa süre içinde arayarak randevu tarihini netleştirecek.
+          </p>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -469,7 +373,7 @@ export const QuoteEstimator: React.FC = () => {
                 <ArrowLeft size={18} /> Geri
               </button>
               <button type="submit" className="btn-primary" style={{ backgroundColor: 'var(--color-success)', borderColor: 'var(--color-success)', color: 'white' }}>
-                {allocatedPainter.name.split(' ')[0]}'i ve Fiyatı Rezerve Et <ArrowRight size={18} />
+                Teklifi Onayla ve Randevu Al <ArrowRight size={18} />
               </button>
             </div>
           </form>
@@ -493,11 +397,10 @@ export const QuoteEstimator: React.FC = () => {
           }}>
             ✓
           </div>
-          <h4 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>Tebrikler, Kemal Usta ve Hediyeleriniz Rezerve Edildi!</h4>
+          <h4 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>Teşekkürler, Talebiniz Alındı!</h4>
           <p style={{ opacity: 0.9, fontSize: '0.95rem', maxWidth: '500px', margin: '0 auto 2rem auto' }}>
-            Sayın <strong style={{ color: 'var(--color-accent)' }}>{contactName}</strong>, seçtiğiniz tarihte <strong>{allocatedPainter.name}</strong> ekibi adınıza geçici olarak bloke edilmiştir. 
-            Ayrıca <strong>₺2.500 değerindeki Ücretsiz 3D Mimar Raporu</strong> ve <strong>Fiziksel Kartela Setiniz</strong> adresinize gönderilmek üzere onaylanmıştır. 
-            Boyama koordinatörümüz 10 dakika içerisinde sizi arayarak teyit işlemini tamamlayacaktır.
+            Sayın <strong style={{ color: 'var(--color-accent)' }}>{contactName}</strong>, talebiniz alınmıştır.
+            Boyama koordinatörümüz kısa süre içinde sizi arayarak randevu tarihini teyit edecektir.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '300px', margin: '0 auto' }}>
             <a href="tel:05343435603" className="btn-primary flex-center" style={{ textDecoration: 'none' }}>
